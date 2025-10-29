@@ -1,1 +1,43 @@
+// /api/words.js
+export default function handler(req, res) {
+  const words = [
+    { chinese: "尊嘟假嘟", english: "For real or not" },
+    { chinese: "神金（疯癫）", english: "Crazy / Out of one's mind" },
+    { chinese: "补药（不要谐音）", english: "No, thanks / I don't want it" },
+    // ... 包含所有100个词汇
+  ];
 
+  const { action, count = 5 } = req.query;
+
+  if (action === 'getRandomWords') {
+    const shuffled = [...words].sort(() => 0.5 - Math.random());
+    const selectedWords = shuffled.slice(0, parseInt(count));
+    
+    res.status(200).json({
+      status: 'success',
+      data: selectedWords
+    });
+  } else if (action === 'getAllWords') {
+    res.status(200).json({
+      status: 'success',
+      data: words
+    });
+  } else if (action === 'checkMatch') {
+    const { chinese, english } = req.query;
+    const word = words.find(w => w.chinese === chinese);
+    const match = word ? word.english === english : false;
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        match: match,
+        correctTranslation: word ? word.english : null
+      }
+    });
+  } else {
+    res.status(400).json({
+      status: 'error',
+      message: 'Unknown action'
+    });
+  }
+}
